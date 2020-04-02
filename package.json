@@ -1,0 +1,21 @@
+{
+  "name": "console-stock",
+  "version": "1.0.0",
+  "description": "show stock real time informations on console",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "stock",
+    "console"
+  ],
+  "author": "kavin wang",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "event-source-stream": "^1.6.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0"
+  }
+}
