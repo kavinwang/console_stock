@@ -1,6 +1,6 @@
-var ess = require('event-source-stream');
-let lodash = require('lodash');
-let moment = require('moment');
+const ess = require('event-source-stream');
+const lodash = require('lodash');
+const moment = require('moment');
 require('colors');
 
 process.stdout.write("\033c");
@@ -22,8 +22,10 @@ let showStock = (startLine, currValues, newValue) => {
         })
     }
 
-    process.stdout.cursorTo(BASE_X + 0, startLine + 0);
-    process.stdout.write('══════════════════════════════════════ ' + (currValues.f58 + '(' + currValues.f57 + ')').bold.brightMagenta + ' ══════════════════════════════════════')
+    if (!currValues.time) {
+        process.stdout.cursorTo(BASE_X + 0, startLine + 0);
+        process.stdout.write('══════════════════════════════════════ ' + (currValues.f58 + '(' + currValues.f57 + ')').bold.brightMagenta + ' ══════════════════════════════════════')
+    }
 
     process.stdout.cursorTo(BASE_X + 20, startLine + 1);
     process.stdout.write("昨  收：".cyan);
@@ -108,7 +110,7 @@ let showStock = (startLine, currValues, newValue) => {
 
     if (!currValues.time) bgColor = 'bgBlack';
 
-    [0, 1, 2, 3, 4].forEach((v, index) => {
+    [0, 1, 2, 3, 4].forEach((v) => {
         // f31
         field = 'f' + (31 + 2 * v);
         process.stdout.cursorTo(BASE_X + 10, startLine + v + 8)
@@ -116,7 +118,7 @@ let showStock = (startLine, currValues, newValue) => {
         process.stdout.moveCursor(-20, 0);
         fieldValid = currValues[field] != '-';
         if (fieldValid) {
-            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgMagenta' : 'bgBlack'
+            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBlue' : 'bgBlack'
             updown = currValues[field] > currValues.f60 ? 2 : currValues[field] < currValues.f60 ? 0 : 1;
             process.stdout.write((currValues[field].toFixed(2) + upDownFlag[updown])['bold'][bgColor][upDownColor[updown]]);
         } else process.stdout.write('  -  ');
@@ -128,7 +130,7 @@ let showStock = (startLine, currValues, newValue) => {
         process.stdout.write('                    ');
         process.stdout.moveCursor(-20, 0);
         if (fieldValid) {
-            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBrightMagenta' : 'bgBlack'
+            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBlue' : 'bgBlack'
             process.stdout.write((currValues[field] + upDownFlag[updown])['bold'][bgColor][upDownColor[updown]]);
         } else process.stdout.write('  -  ');
 
@@ -139,7 +141,7 @@ let showStock = (startLine, currValues, newValue) => {
         process.stdout.moveCursor(-20, 0);
         fieldValid = currValues[field] != '-';
         if (fieldValid) {
-            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBrightMagenta' : 'bgBlack'
+            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBlue' : 'bgBlack'
             updown = currValues[field] > currValues.f60 ? 2 : currValues[field] < currValues.f60 ? 0 : 1
             process.stdout.write((currValues[field].toFixed(2) + upDownFlag[updown])['bold'][bgColor][upDownColor[updown]]);
         } else process.stdout.write('  -  ');
@@ -150,7 +152,7 @@ let showStock = (startLine, currValues, newValue) => {
         process.stdout.write('                    ');
         process.stdout.moveCursor(-20, 0);
         if (fieldValid) {
-            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBrightMagenta' : 'bgBlack'
+            if (currValues.time) bgColor = newValue.hasOwnProperty(field) ? 'bgBlue' : 'bgBlack'
             process.stdout.write((currValues[field] + upDownFlag[updown])['bold'][bgColor][upDownColor[updown]]);
         } else process.stdout.write('  -  ');
     })
