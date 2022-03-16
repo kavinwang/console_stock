@@ -1,6 +1,6 @@
 const ess = require('event-source-stream');
 const lodash = require('lodash');
-const moment = require('moment');
+const dayjs = require('dayjs');
 require('colors');
 
 process.stdout.write("\033c");
@@ -11,7 +11,7 @@ let updown;
 const titleSellBuy = ['卖盘', '卖量', '买盘', '买量'];
 const BASE_X = 4;
 let showStock = (startLine, currValues, newValue) => {
-    let time = moment().format('YYYY-MM-DD HH:mm:ss');
+    let time = dayjs().format('YYYY-MM-DD HH:mm:ss');
     let bgColor, fieldValid;
     lodash.merge(currValues, newValue);
 
@@ -203,7 +203,7 @@ let getStock = (startLine, code) => {
     })
 }
 
-let codes = (process.argv[2] || '000063').split(',');
+let codes = (process.argv[2] || '000063,600528').split(',');//600528
 let startLine = 2;
 codes.forEach(code => {
     getStock(startLine, code);
