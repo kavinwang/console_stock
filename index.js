@@ -3,29 +3,53 @@ const lodash = require('lodash');
 const dayjs = require('dayjs');
 require('colors');
 
-process.stdout.write("\033c");
 
 const upDownColor = ['green', 'cyan', 'red'];
 const upDownFlag = ['↓', '⇵', '↑'];
 let updown;
 const titleSellBuy = ['卖盘', '卖量', '买盘', '买量'];
-const BASE_X = 4;
-let showStock = (startLine, currValues, newValue) => {
+const fileds = "f530,f57,f58,f60,f46,f51,f52,f43,f44,f45,f71,f168,f169,f170,f171,f31,f32,f33,f34,f35,f36,f37,f38,f39,f40,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20";
+const codeDatas = {};
+
+let refreshStock = (index, code) => {
+    if (!codeDatas[code]) return;
+    // {
+        // process.stdout.cursorTo( 0, 0);
+        // process.stdout.write(`XXX:${code}`);
+    // }
+    let newValue = codeDatas[code].newValue;
+    let currValues = codeDatas[code].currValues;
+    if (!currValues) {
+        codeDatas[code].currValues = newValue;
+        currValues = codeDatas[code].currValues;
+    }
+
+    let startLine = 2 + index * 15;
+    let BASE_X = 4;
+    if (process.stdout.columns >= 200) {
+        if (index % 2 != 0) {
+            BASE_X = 104;
+            startLine = 2 + (index - 1) * 15;
+        } else {
+            startLine = 2 + index / 2 * 15;
+        }
+    }
+    
     let time = dayjs().format('YYYY-MM-DD HH:mm:ss');
     let bgColor, fieldValid;
     lodash.merge(currValues, newValue);
 
-    if (!currValues.time) {
+    // if (!currValues.time) {
         [0, 1, 2, 3].forEach((v) => {
             process.stdout.cursorTo(BASE_X + 10 + v * 20, startLine + 7)
             process.stdout.write(titleSellBuy[v]);
         })
-    }
+    // }
 
-    if (!currValues.time) {
+    // if (!currValues.time) {
         process.stdout.cursorTo(BASE_X + 0, startLine + 0);
         process.stdout.write('══════════════════════════════════════ ' + (currValues.f58 + '(' + currValues.f57 + ')').bold.brightMagenta + ' ══════════════════════════════════════')
-    }
+    // }
 
     process.stdout.cursorTo(BASE_X + 20, startLine + 1);
     process.stdout.write("昨  收：".cyan);
@@ -177,8 +201,18 @@ let showStock = (startLine, currValues, newValue) => {
     process.stdout.cursorTo(0, 0);
     currValues.time = time;
 }
-let getStock = (startLine, code) => {
-    let currValues = {};
+
+let codes = (process.argv[2] || '000063,600528,601933').split(',').map(code => code.trim()).filter(code => code);
+
+process.stdout.on('resize', function () {
+    process.stdout.cursorTo(0, 0);
+    process.stdout.clearScreenDown();
+    process.stdout.write(`\t当前屏幕：${process.stdout.columns} + 'x' + ${process.stdout.rows}, 退出：CTRL+C，欢迎使用！`);
+});
+
+process.stdout.write("\033c");
+process.stdout.write(`\t当前屏幕：${process.stdout.columns} + 'x' + ${process.stdout.rows}, 退出：CTRL+C，欢迎使用！`);
+codes.forEach((code, index) => {
     if (code.indexOf('.') == -1) {
         if (code[0] == '6' || code[0] == '9') code = '1.' + code;
         else code = '0.' + code;
@@ -192,20 +226,16 @@ let getStock = (startLine, code) => {
                 ut: 'fa5fd1943c7b386f172d6893dbfba10b',
                 invt: 2,
                 fltt: 2,
-                fields: "f530,f57,f58,f60,f46,f51,f52,f43,f44,f45,f71,f168,f169,f170,f171,f31,f32,f33,f34,f35,f36,f37,f38,f39,f40,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20",
+                fields: fileds,
                 secid: code,
                 _: Date.now()
             }
         }
-    }).on('data', function(data) {
+    }).on('data', function (data) {
         if (!data.data) return;
-        showStock(startLine, currValues, data.data)
+        if (!codeDatas[code]) codeDatas[code] = { newValue: data.data };
+        else codeDatas[code].newValue = data.data;
+        refreshStock(index, code)
     })
 }
-
-let codes = (process.argv[2] || '000063,600528').split(',');//600528
-let startLine = 2;
-codes.forEach(code => {
-    getStock(startLine, code);
-    startLine += 15;
-})
+);
